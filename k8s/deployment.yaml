@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: benchmark
+  namespace: default
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: benchmark
+  template:
+    metadata:
+      labels:
+        app: benchmark
+    spec:
+      containers:
+        - image: gcr.io/google.com/cloudsdktool/google-cloud-cli:latest
+          imagePullPolicy: IfNotPresent
+          tty: false
+          name: gcloud
+          env:
+            - name: BUCKET
+              value: cohere-gcp-benchmark
+          command:
+            - /bin/bash
+            - -c
+            - |
+              apt-get update && apt-get install -y net-tools
+              #sleep infinity
+              #gsutil perfdiag -o output.json gs://cohere-perf-testing
+              #time gsutil -m cp -r gs://cohere-perf-testing/command-6b-v10.2.7 /mnt/models/fastertransformer
+              time gcloud storage cp --recursive gs://cohere-perf-testing/command-6b-v10.2.7 /mnt/models/fastertransformer/
+          volumeMounts:
+            - mountPath: /mnt/models/fastertransformer
+              name: model
+          resources:
+            requests:
+              memory: 120G
+              cpu: "28"
+      #            limits:
+      #              nvidia.com/gpu: "4"
+      nodeSelector:
+        cloud.google.com/gke-accelerator: nvidia-tesla-a100
+      tolerations:
+        - effect: NoSchedule
+          key: nvidia.com/gpu
+          operator: Exists
+        - effect: NoSchedule
+          key: cohere.ai/nvidia-a100-xl
+          operator: Exists
+      volumes:
+        - name: model
+          emptyDir:
+            medium: Memory
