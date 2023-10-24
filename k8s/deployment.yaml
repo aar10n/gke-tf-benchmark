@@ -15,41 +15,32 @@ spec:
       labels:
         app: benchmark
     spec:
+      serviceAccountName: aaron-benchmark-sa
+      terminationGracePeriodSeconds: 1
       containers:
-        - image: gcr.io/google.com/cloudsdktool/google-cloud-cli:latest
+        - image: google/cloud-sdk:latest
           imagePullPolicy: IfNotPresent
-          tty: false
           name: gcloud
           env:
             - name: BUCKET
               value: cohere-gcp-benchmark
+            - name: MODEL_PATH
+              value: small-model
           command:
             - /bin/bash
             - -c
             - |
               apt-get update && apt-get install -y net-tools
-              #sleep infinity
-              #gsutil perfdiag -o output.json gs://cohere-perf-testing
-              #time gsutil -m cp -r gs://cohere-perf-testing/command-6b-v10.2.7 /mnt/models/fastertransformer
-              time gcloud storage cp --recursive gs://cohere-perf-testing/command-6b-v10.2.7 /mnt/models/fastertransformer/
+              name=$(curl -s http://metadata.google.internal/computeMetadata/v1/instance/name -H "Metadata-Flavor: Google")
+              time gcloud storage cp -r gs://$BUCKET/$MODEL_PATH/ /mnt/models/fastertransformer/
+              sleep infinity
           volumeMounts:
             - mountPath: /mnt/models/fastertransformer
               name: model
           resources:
             requests:
-              memory: 120G
-              cpu: "28"
-      #            limits:
-      #              nvidia.com/gpu: "4"
-      nodeSelector:
-        cloud.google.com/gke-accelerator: nvidia-tesla-a100
-      tolerations:
-        - effect: NoSchedule
-          key: nvidia.com/gpu
-          operator: Exists
-        - effect: NoSchedule
-          key: cohere.ai/nvidia-a100-xl
-          operator: Exists
+              memory: 100G
+              cpu: "30"
       volumes:
         - name: model
           emptyDir:

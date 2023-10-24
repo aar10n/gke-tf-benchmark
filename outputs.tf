@@ -20,3 +20,11 @@ output "service_account_email" {
 output "storage_bucket" {
   value = google_storage_bucket.bucket.name
 }
+
+output "k8s_service_account_name" {
+  value = module.workload_identity.k8s_service_account_name
+}
+
+output "k8s_service_account_namespace" {
+  value = module.workload_identity.k8s_service_account_namespace
+}

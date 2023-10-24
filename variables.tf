@@ -27,8 +27,3 @@ variable "cluster" {
   description = "The name of the cluster"
   default     = "aaron-benchmark"
 }
-
-variable "registry_project_ids" {
-  description = "List of projects to grant registry access to"
-  default = ["cohere-cd"]
-}
