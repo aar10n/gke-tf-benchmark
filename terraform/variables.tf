@@ -27,3 +27,14 @@ variable "cluster" {
   description = "The name of the cluster"
   default     = "aaron-benchmark"
 }
+
+variable "vm_name" {
+  description = "The name of the vm"
+  default     = "aaron-benchmark"
+}
+
+
+variable "vm_user" {
+  description = "The name of the user on the vm for ssh"
+  default     = "aaron"
+}

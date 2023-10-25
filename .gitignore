@@ -1,3 +1,5 @@
+bin/
+
 # Local .terraform directories
 **/.terraform/*
 

@@ -22,7 +22,7 @@ type args struct {
 	size uint64
 }
 
-const GoroutineLimit = 10
+const GoroutineLimit = 50
 
 func init() {
 	// Seed the random number generator
